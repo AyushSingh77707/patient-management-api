@@ -1,6 +1,16 @@
 from typing import Annotated,Literal,Optional
 from pydantic import Field,BaseModel,computed_field
 
+class DoctorRegister(BaseModel):
+    name:str
+    email:str
+    pwd:str
+
+class DoctorLogin(BaseModel):
+    email:str
+    pwd:str
+
+
 class Patient(BaseModel):
     id:Annotated[Optional[str],Field(...,description='enter id of patient',example='P7')]=None
     name:Annotated[Optional[str],Field(...,description='Enter name of the patient here',min_length=3,max_length=50)]=None
