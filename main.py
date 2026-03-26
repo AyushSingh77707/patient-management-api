@@ -5,9 +5,9 @@ import models
 from schemas import Patient
 import math
 
-from auth import hash_pwd,verify_pwd,verify_token,create_token
+from auth import hash_pwd,verify_pwd,verify_token,create_token,get_current_user,oauth2_scheme
 from fastapi.security import OAuth2PasswordBearer
-outh2_scheme=OAuth2PasswordBearer(tokenUrl="Login")
+
 from schemas import DoctorRegister,DoctorLogin
 
 app=FastAPI()
@@ -54,14 +54,8 @@ def login_doctor(info:DoctorLogin,db:Session=Depends(get_session)):
 
 
 
-
-
-
-
-
-
 @app.post("/create")
-def create_patient(info:Patient,db : Session=Depends(get_session)):
+def create_patient(info:Patient,db : Session=Depends(get_session),current_user=Depends(get_current_user)):
     new_patient=models.Patient(**info.model_dump())
     db.add(new_patient)
     db.commit()
@@ -70,7 +64,7 @@ def create_patient(info:Patient,db : Session=Depends(get_session)):
 
 #normal view
 @app.get("/view")
-def view_all(db:Session=Depends(get_session)):
+def view_all(db:Session=Depends(get_session),current_user=Depends(get_current_user)):
     data=db.query(models.Patient).all()
     return data
 
@@ -81,7 +75,8 @@ def view_once(
     limit:int=Query(default=10,ge=1,le=50),
     sort_by:str=Query(default="id"),
     order:str=Query(default="asc"),
-    db:Session=Depends(get_session)
+    db:Session=Depends(get_session),
+    current_user=Depends(get_current_user)
 ):
     offset=(page-1)*limit
     total=db.query(models.Patient).count()
@@ -117,7 +112,7 @@ def view_one(patient_id:str,db:Session=Depends(get_session)):
     return data
 
 @app.delete("/del/{patient_id}")
-def del_patient(patient_id:str,db:Session=Depends(get_session)):
+def del_patient(patient_id:str,db:Session=Depends(get_session),current_user=Depends(get_current_user)):
     data=db.query(models.Patient).filter(models.Patient.id==patient_id).first()
     if not data:
         raise HTTPException(status_code=404,detail='patient not found!')
