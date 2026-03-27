@@ -10,7 +10,29 @@ from fastapi.security import OAuth2PasswordBearer
 
 from schemas import DoctorRegister,DoctorLogin
 
-app=FastAPI()
+
+
+
+from fastapi.security import HTTPBearer
+from fastapi.openapi.utils import get_openapi
+
+app=FastAPI(title="Patient Management API",description="API for managing patients",version="1.0.0")
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema=get_openapi(title="Patient Management API",version="1.0.0",routes=app.routes)
+    openapi_schema["components"]["securitySchemes"]={
+        "BearerAuth":{
+            "type":"http",
+            "scheme":"bearer"
+        }
+    }
+    app.openapi_schema=openapi_schema
+    return app.openapi_schema
+app.openapi=custom_openapi
+
+
+
 Base.metadata.create_all(bind=engine)
 
 #register endpoint
