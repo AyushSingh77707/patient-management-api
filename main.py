@@ -155,3 +155,10 @@ def get_doctor_patients(doctor_id:int,db:Session=Depends(get_session),current_us
         "Patient":doctor.patients
     }
 
+@app.get("/")
+def greet():
+    return{
+        "Message":"Patient management system api is live!",
+        "how to use? ":"enter /docs at the end of url to access api"
+    }
+
