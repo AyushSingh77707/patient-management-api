@@ -56,7 +56,9 @@ def login_doctor(info:DoctorLogin,db:Session=Depends(get_session)):
 
 @app.post("/create")
 def create_patient(info:Patient,db : Session=Depends(get_session),current_user=Depends(get_current_user)):
-    new_patient=models.Patient(**info.model_dump())
+    patient_data = info.model_dump()
+    patient_data["doctor_id"] = current_user.id
+    new_patient=models.Patient(**patient_data)
     db.add(new_patient)
     db.commit()
     db.refresh(new_patient)
@@ -133,8 +135,23 @@ def update_patient(patient_id:str,info:Patient,db:Session=Depends(get_session)):
     if info.weight is not None: data.weight=info.weight
 
     if info.gender is not None: data.gender=info.gender 
+    if info.doctor_id is not None: data.doctor_id = info.doctor_id 
 
     db.commit()
     db.refresh(data)
     return {'message':'patient updated succesfully!'}
+
+
+@app.get("/doctor/{doctor_id}/patients")
+def get_doctor_patients(doctor_id:int,db:Session=Depends(get_session),current_user=Depends(get_current_user)):
+    doctor=db.query(models.Doctor).filter(models.Doctor.id==doctor_id).first()
+
+    if not doctor:
+        raise HTTPException(status_code=404,detail="doctor not found!")    
+    
+    return{
+        "doctor":doctor.name,
+        "total_patients":len(doctor.patients),
+        "Patient":doctor.patients
+    }
 

@@ -1,5 +1,7 @@
-from sqlalchemy import String,Integer,Boolean,Float,Column
+from sqlalchemy import String,Integer,Boolean,Float,Column,ForeignKey
 from database import Base
+
+from sqlalchemy.orm import relationship
 
 
 class Doctor(Base):
@@ -8,6 +10,8 @@ class Doctor(Base):
     name=Column(String(100))
     email=Column(String(100),unique=True,nullable=False)
     pwd=Column(String(100),nullable=False)
+
+    patients=relationship("Patient",back_populates="doctor")
 
 
 class Patient(Base):
@@ -20,5 +24,8 @@ class Patient(Base):
     gender=Column(String(10))
     bmi=Column(Float)
     verdict=Column(String)
+    doctor_id=Column(Integer,ForeignKey("doctor_data.id"),nullable=False)
+
+    doctor=relationship("Doctor",back_populates="patients")
 
     
