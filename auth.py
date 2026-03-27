@@ -14,6 +14,11 @@ from sqlalchemy.orm import Session
 from database import get_session
 import models
 
+#setting environment
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
 
 #password hashing
    
@@ -27,7 +32,8 @@ def verify_pwd(plain:str,hashed:str):                             #function to v
 #token generation and verification
 
 
-SK="as010107"    #secret key=> used to sign the token
+# SK=os.getenv("as010107")    #secret key=> used to sign the token
+SK="as010107"
 ALGO="HS256"
 EXP=30            #expire in minutes
 
